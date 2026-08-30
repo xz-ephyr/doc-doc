@@ -1,4 +1,4 @@
-name: Build
+name: Build (Windows)
 
 on:
   push:
@@ -10,15 +10,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-          - os: ubuntu-22.04
-          - os: macos-latest
-
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -32,26 +24,20 @@ jobs:
         with:
           workspaces: src-tauri -> target
 
-      - name: Install Linux deps
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
       - name: Install deps
         run: bun install --frozen-lockfile
 
       - name: Build web
         run: bun run build
 
-      # PR / push to main: just verify Tauri builds (no Release)
+      # PR / push to main: verify Tauri builds (no Release)
       - name: Build Tauri (verify)
         if: "!startsWith(github.ref, 'refs/tags/v')"
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Tag v* (e.g. v0.1.0): build + create Draft Release with installers in Assets
+      # Tag v* (e.g. v0.1.0): build + create Draft Release with Windows installers
       - name: Build Tauri + Release
         if: "startsWith(github.ref, 'refs/tags/v')"
         uses: tauri-apps/tauri-action@v0
@@ -60,7 +46,7 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: "doc-doc v__VERSION__"
-          releaseBody: "Tiny markdown writer — file stays on your machine.\n\nInstall from Assets below (msi/exe for Windows, deb/AppImage for Linux, dmg for macOS)."
+          releaseBody: "Tiny markdown writer — file stays on your machine.\n\nWindows: download .msi or .exe (NSIS) below. Works on Windows 10 1809+ and Windows 11 — WebView2 bootstrapper is embedded so it installs automatically if missing."
           releaseDraft: true
           prerelease: false
 
@@ -68,7 +54,7 @@ jobs:
         if: "!startsWith(github.ref, 'refs/tags/v')"
         uses: actions/upload-artifact@v4
         with:
-          name: bundle-${{ matrix.os }}
+          name: bundle-windows
           path: |
             src-tauri/target/release/bundle/
             dist/

@@ -27,11 +27,19 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/icon.png",
-      "icons/icon.ico"
-    ],
-    "resources": []
+    "targets": ["nsis", "msi"],
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "resources": [],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "nsis": {
+        "installMode": "both"
+      },
+      "wix": {
+        "language": "en-US"
+      }
+    }
   }
 }
