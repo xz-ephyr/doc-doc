@@ -33,23 +33,27 @@ jobs:
       - name: Build web
         run: bun run build
 
-      # PR / push to main: verify Tauri builds (no Release)
+      # PR / push to main: verify Tauri builds (no Release) — needs signing env but skip release
       - name: Build Tauri (verify)
         if: "!startsWith(github.ref, 'refs/tags/v')"
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
-      # Tag v* (e.g. v0.1.0): build + create Draft Release with Windows installers
+      # Tag v* (e.g. v0.1.0): build + create Draft Release with Windows installers + updater latest.json
       - name: Build Tauri + Release
         if: "startsWith(github.ref, 'refs/tags/v')"
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: v__VERSION__
           releaseName: "doc-doc v__VERSION__"
-          releaseBody: "Tiny markdown writer — file stays on your machine.\n\nWindows: download .msi or .exe (NSIS) below. Works on Windows 10 1809+ and Windows 11 — WebView2 bootstrapper is embedded so it installs automatically if missing."
+          releaseBody: "Tiny markdown writer — file stays on your machine.\n\nWindows: download .msi or .exe (NSIS) below. Works on Windows 10 1809+ and Windows 11 — WebView2 bootstrapper is embedded so it installs automatically if missing.\n\nAuto-update: the app checks https://github.com/xz-ephyr/doc-doc/releases/latest/download/latest.json on launch."
           releaseDraft: true
           prerelease: false
 
@@ -61,4 +65,6 @@ jobs:
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/msi/*.zip
+            src-tauri/target/release/bundle/nsis/*.zip
           if-no-files-found: error

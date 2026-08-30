@@ -28,7 +28,7 @@
   "bundle": {
     "active": true,
     "targets": ["nsis", "msi"],
-    "createUpdaterArtifacts": false,
+    "createUpdaterArtifacts": "v1Compatible",
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "resources": [],
     "windows": {
@@ -40,6 +40,15 @@
       },
       "wix": {
         "language": "en-US"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "RWTLhgVZt2bRjQq9m79wkrgOPpHeKPkb0oSnT9H5m4YwOT2P0j0nHsnW",
+      "endpoints": ["https://github.com/xz-ephyr/doc-doc/releases/latest/download/latest.json"],
+      "windows": {
+        "installMode": "basicUi"
       }
     }
   }

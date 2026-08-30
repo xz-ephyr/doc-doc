@@ -9,6 +9,8 @@ import {
   FileText,
   Eye,
   Columns2,
+  RefreshCw,
+  Download,
 } from "lucide-react";
 
 function escapeHtml(s: string) {
@@ -97,13 +99,53 @@ Just type below — preview updates live underneath.
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const writeRef = useRef<HTMLTextAreaElement>(null);
   const dirty = content !== savedContent;
+  const showToast = useCallback((msg: string) => { setToast(msg); window.setTimeout(() => setToast(null), 2200); }, []);
+  const [updateInfo, setUpdateInfo] = useState<{ version: string } | null>(null);
+  const [updating, setUpdating] = useState(false);
+
+  // auto-update check (Tauri only)
+  useEffect(() => {
+    if (!isTauri()) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { check } = await import("@tauri-apps/plugin-updater");
+        const update = await check();
+        if (!cancelled && update) {
+          setUpdateInfo({ version: update.version });
+          showToast(`Update ${update.version} available`);
+        }
+      } catch (e) {
+        console.debug("updater check failed (normal in dev)", e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [showToast]);
+
+  const handleUpdate = useCallback(async () => {
+    try {
+      setUpdating(true);
+      const { check } = await import("@tauri-apps/plugin-updater");
+      const update = await check();
+      if (!update) { showToast("No update available"); return; }
+      showToast(`Downloading ${update.version}…`);
+      await update.downloadAndInstall((e) => {
+        if ((e as { event: string }).event === "Started") showToast("Installing…");
+      });
+      showToast("Restarting…");
+      const maybe = update as unknown as { closeAndInstall?: () => Promise<void> };
+      if (maybe.closeAndInstall) await maybe.closeAndInstall();
+      else showToast("Installed — restart the app");
+    } catch (e) {
+      console.error(e);
+      showToast("Update failed");
+    } finally { setUpdating(false); }
+  }, [showToast]);
 
   useEffect(() => { document.documentElement.setAttribute("data-theme", theme); localStorage.setItem(LS_THEME, theme); }, [theme]);
   useEffect(() => { localStorage.setItem(LS_DRAFT, content); }, [content]);
   useEffect(() => { if (filePath) localStorage.setItem(LS_PATH, filePath); else localStorage.removeItem(LS_PATH); }, [filePath]);
   useEffect(() => { localStorage.setItem(LS_MODE, viewMode); }, [viewMode]);
-
-  const showToast = useCallback((msg: string) => { setToast(msg); window.setTimeout(() => setToast(null), 2200); }, []);
 
   const readFileViaTauri = useCallback(async (path: string) => {
     const { readTextFile } = await import("@tauri-apps/plugin-fs");
@@ -222,6 +264,15 @@ Just type below — preview updates live underneath.
           </button>
         </div>
       </header>
+      {updateInfo && (
+        <div style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 12px", background:"var(--surface)", borderBottom:"1px solid var(--border)", fontSize:13, color:"var(--text-soft)" }}>
+          <RefreshCw size={14} /> Update {updateInfo.version} available — restart to install
+          <button className="btn btn-primary" style={{ marginLeft:"auto", padding:"5px 10px" }} disabled={updating} onClick={() => void handleUpdate()}>
+            <Download size={14} /> {updating ? "Updating…" : "Update now"}
+          </button>
+          <button className="btn" style={{ padding:"5px 10px" }} onClick={() => setUpdateInfo(null)}>Dismiss</button>
+        </div>
+      )}
 
       {viewMode === "write" ? (
         <div className="write-wrap" onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop} style={{ position: "relative" }}>

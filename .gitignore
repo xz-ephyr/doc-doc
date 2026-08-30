@@ -10,6 +10,12 @@ src-tauri/target
 .env
 .env.local
 
+# tauri updater signing key (never commit)
+updater-key.key
+updater-key.key.pub
+*.key
+*.key.pub
+
 # os
 .DS_Store
 Thumbs.db
