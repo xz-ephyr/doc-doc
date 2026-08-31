@@ -81,17 +81,7 @@ export default function App() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
   const [filePath, setFilePath] = useState<string | null>(() => localStorage.getItem(LS_PATH));
-  const [content, setContent] = useState<string>(() => localStorage.getItem(LS_DRAFT) ?? `# Welcome to doc-doc
-
-A calm page for writing. Your file stays on your machine.
-
-Just type below — preview updates live underneath.
-
-- **Save** writes back to the same path
-- **Save As** to pick a new location
-- **Open** any .md file
-- Drag & drop a file to open it
-`);
+  const [content, setContent] = useState<string>(() => localStorage.getItem(LS_DRAFT) ?? "");
   const [savedContent, setSavedContent] = useState(content);
   const [viewMode, setViewMode] = useState<ViewMode>(() => (localStorage.getItem(LS_MODE) as ViewMode) === "split" ? "split" : "write");
   const [dragOver, setDragOver] = useState(false);
@@ -278,7 +268,6 @@ Just type below — preview updates live underneath.
         <div className="write-wrap" onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={onDrop} style={{ position: "relative" }}>
           {dragOver && <div className="drop-mask">Drop .md file to open</div>}
           <div className="doc">
-            <div className="doc-title"><FileText size={12} /> {fileName} — Inter · IBM Plex Mono</div>
             <textarea
               ref={writeRef}
               className="doc-area"
@@ -287,11 +276,8 @@ Just type below — preview updates live underneath.
               placeholder="Start writing…"
               spellCheck
               aria-label="Write markdown"
+              autoFocus
             />
-            <div className="doc-hint">{wordCount} words · {content.length} chars · {dirty ? "unsaved" : "saved"}</div>
-            <div className="doc-preview">
-              <div className="preview" style={{ padding: 0 }} dangerouslySetInnerHTML={{ __html: mdToHtml(content) }} />
-            </div>
           </div>
         </div>
       ) : (

@@ -161,19 +161,16 @@ body {
 .preview li { margin: .25em 0; }
 .preview hr { border: 0; border-top: 1px solid var(--border); margin: 1.2em 0; }
 
-/* write mode — preview-only writing page (centered document) */
-.write-wrap { flex: 1; min-height: 0; overflow: auto; display: flex; justify-content: center; padding: 32px 20px; background: var(--bg); }
-.doc { width: 100%; max-width: 720px; }
-.doc-title { font-size: 12px; font-family: var(--font-mono); color: var(--text-faint); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+/* write mode — blank page, blinking caret only */
+.write-wrap { flex: 1; min-height: 0; overflow: auto; display: flex; justify-content: center; padding: 0; background: var(--bg); }
+.doc { width: 100%; max-width: 720px; display: flex; flex: 1; min-height: 0; }
 .doc-area {
-  width: 100%; min-height: 62vh; resize: none; border: 1px solid var(--border); border-radius: 12px;
-  background: var(--bg-elevated); color: var(--text); font-family: var(--font-mono); font-size: 14.5px; line-height: 1.8;
-  padding: 24px 22px; outline: none; box-shadow: var(--shadow);
+  width: 100%; flex: 1; min-height: 0; resize: none; border: none; border-radius: 0;
+  background: transparent; color: var(--text); font-family: var(--font-mono); font-size: 14.5px; line-height: 1.8;
+  padding: 40px 24px; outline: none; box-shadow: none; caret-color: var(--text);
 }
-.doc-area:focus { border-color: var(--border-strong); }
+.doc-area:focus { border: none; outline: none; }
 .doc-area::placeholder { color: var(--text-faint); }
-.doc-preview { margin-top: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-soft); padding: 18px 22px; }
-.doc-hint { margin-top: 10px; font-size: 12px; color: var(--text-faint); font-family: var(--font-mono); }
 
 /* status — tiny */
 .statusbar { height: 26px; display: flex; align-items: center; gap: 10px; padding: 0 12px; border-top: 1px solid var(--border); background: var(--bg-soft); color: var(--text-faint); font-size: 11.5px; font-family: var(--font-mono); flex-shrink: 0; }
