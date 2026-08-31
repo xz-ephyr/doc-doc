@@ -45,7 +45,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "RWRExthwn5ExTwS6ga3J3Q1BZ16E0o5RqK8nv1hbt284SsNztE6JFwnL",
+      "pubkey": "UldSRXh0aHduNUV4VHdTNmdhM0ozUTFCWjE2RTBvNVJxSzhudjFoYnQyODRTc056dEU2SkZ3bkw=",
       "endpoints": ["https://github.com/xz-ephyr/doc-doc/releases/latest/download/latest.json"],
       "windows": {
         "installMode": "basicUi"
