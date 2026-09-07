@@ -27,7 +27,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": ["nsis"],
     "createUpdaterArtifacts": "v1Compatible",
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "resources": [],
